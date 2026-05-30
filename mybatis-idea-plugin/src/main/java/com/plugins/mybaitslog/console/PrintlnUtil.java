@@ -9,7 +9,11 @@ import com.intellij.openapi.project.Project;
 import com.plugins.mybaitslog.Config;
 import org.apache.commons.lang.StringUtils;
 
+import com.intellij.execution.filters.HyperlinkInfo;
+import com.intellij.execution.impl.ConsoleViewImpl;
+
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -110,8 +114,8 @@ public class PrintlnUtil {
                 //序号
                 PrintlnUtil.println(project, Config.SQL_START_LINE + id + "\n", ConsoleViewContentType.USER_INPUT);
 //                PrintlnUtil.printlnSqlType(project, Config.SQL_EMPTY_LINE, completesql + "\n");
-                PrintlnUtil.printlnSqlType(project, Config.SQL_MIDDLE_LINE, completesql + "\n");
-                PrintlnUtil.printlnSqlType(project, Config.SQL_MIDDLE_LINE, parameter + "\n");
+                PrintlnUtil.printlnSqlWithCopy(project, Config.SQL_MIDDLE_LINE, completesql);
+                PrintlnUtil.printlnSqlWithCopy(project, Config.SQL_MIDDLE_LINE, parameter);
                 PrintlnUtil.println(project, Config.SQL_END_LINE + "\n", ConsoleViewContentType.USER_INPUT);
             }
         }
@@ -189,5 +193,28 @@ public class PrintlnUtil {
                 styleName.getAttributes().setForegroundColor(color1);
                 println(project, title + rowLine, styleName);
         }
+    }
+
+    /**
+     * 带复制按钮的SQL输出，点击 [Copy] 可复制内容到剪贴板
+     */
+    public static void printlnSqlWithCopy(Project project, String title, String content) {
+        final ConsoleView consoleView = consoleViewMap.get(project);
+        if (consoleView == null) {
+            return;
+        }
+        final String sqlType = getSqlType(content);
+        final ConsoleViewContentType systemOutput = ConsoleViewContentType.SYSTEM_OUTPUT;
+        final TextAttributes attributes = systemOutput.getAttributes();
+        final ConsoleViewContentType styleName = new ConsoleViewContentType("styleName", new TextAttributes(attributes.getForegroundColor(), attributes.getBackgroundColor(), attributes.getEffectColor(), attributes.getEffectType(), attributes.getFontType()));
+        final Color color = Config.Idea.getColor(Config.Idea.ColorMap.containsKey(sqlType) ? sqlType : "other");
+        styleName.getAttributes().setForegroundColor(color);
+        consoleView.print(title, styleName);
+        if (consoleView instanceof ConsoleViewImpl) {
+            ConsoleViewImpl impl = (ConsoleViewImpl) consoleView;
+            impl.printHyperlink(" [Copy]", p -> Toolkit.getDefaultToolkit().getSystemClipboard()
+                    .setContents(new StringSelection(content), null));
+        }
+        consoleView.print(" " + content + "\n", styleName);
     }
 }
