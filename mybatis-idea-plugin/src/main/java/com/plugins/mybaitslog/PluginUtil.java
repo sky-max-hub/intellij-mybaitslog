@@ -2,20 +2,18 @@ package com.plugins.mybaitslog;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.notification.*;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.application.ApplicationInfo;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationGroup;
+import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.ui.MessageType;
 import com.plugins.mybaitslog.gui.FilterSetting;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.HyperlinkEvent;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.URL;
 
 public class PluginUtil {
@@ -52,37 +50,41 @@ public class PluginUtil {
         return null;
     }
 
+    private static final String NOTIFICATION_GROUP_ID = "MyBatisLog Notification";
+
+    private static NotificationGroup getNotificationGroup() {
+        return NotificationGroupManager.getInstance().getNotificationGroup(NOTIFICATION_GROUP_ID);
+    }
+
     public static void Notificat_AddConfiguration() {
-        NotificationListener.Adapter notificationListener = new NotificationListener.Adapter() {
+        String content = "There is a new unknown actuator, Please exclude the options for configuration.<a href=\"configuration\">Open the configuration window</a>";
+        Notification notification = getNotificationGroup()
+                .createNotification("MyBatis Log EasyPlus", content, NotificationType.WARNING);
+        notification.setListener(new NotificationListener.Adapter() {
             @Override
             protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
-                // e.getDescription() 的值就是标签 a 中的 href 属性值
-                //启动filter配置
                 FilterSetting dialog = new FilterSetting();
                 dialog.pack();
-                dialog.setSize(520, 420);//配置大小
+                dialog.setSize(520, 420);
                 dialog.setResizable(true);
-                dialog.setLocationRelativeTo(null);//位置居中显示
+                dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
             }
-        };
-        String content = "There is a new unknown actuator, Please exclude the options for configuration.<a href=\"configuration\">Open the configuration window</a>";
-        NotificationGroup notificationGroup = new NotificationGroup("Notification", NotificationDisplayType.BALLOON, false);
-        Notification notification = notificationGroup.createNotification("MyBatis Log EasyPlus", "", content, NotificationType.WARNING, notificationListener);
+        });
         Notifications.Bus.notify(notification);
     }
 
     public static void Notificat_Success() {
         String content = "MyBatis Log EasyPlus Run";
-        NotificationGroup notificationGroup = new NotificationGroup("Notification", NotificationDisplayType.BALLOON, false);
-        Notification notification = notificationGroup.createNotification("MyBatis Log EasyPlus", "", content, NotificationType.INFORMATION);
+        Notification notification = getNotificationGroup()
+                .createNotification("MyBatis Log EasyPlus", content, NotificationType.INFORMATION);
         Notifications.Bus.notify(notification);
     }
 
     public static void Notificat_Error(String error) {
         String content = error + ", MyBatis Log EasyPlus Unable to Run";
-        NotificationGroup notificationGroup = new NotificationGroup("Notification", NotificationDisplayType.BALLOON, false);
-        Notification notification = notificationGroup.createNotification("MyBatis Log EasyPlus", "", content, NotificationType.ERROR);
+        Notification notification = getNotificationGroup()
+                .createNotification("MyBatis Log EasyPlus", content, NotificationType.ERROR);
         Notifications.Bus.notify(notification);
     }
 

@@ -38,6 +38,7 @@ public class FilterSetting extends JDialog {
     private JCheckBox checkBox_fold;
     private JCheckBox checkBox_welcome;
     private JCheckBox checkBox_rmi;
+    private JTextArea excludeSqlTextArea;
 
 
     /**
@@ -62,6 +63,7 @@ public class FilterSetting extends JDialog {
         checkBox_fold.setSelected(whetherfold);
         checkBox_welcome.setSelected(welcomeMessage);
         checkBox_rmi.setSelected(runrmi);
+        excludeSqlTextArea.setText(Config.Idea.getExcludeSql());
 
         setContentPane(contentPane);
         setModal(true);
@@ -137,6 +139,7 @@ public class FilterSetting extends JDialog {
             Config.Idea.setPerRunMap((String) key, (Boolean) value, true);
         }
         Config.Idea.setAddOpens(addOpens);
+        Config.Idea.setExcludeSql(excludeSqlTextArea.getText());
         Config.Idea.setParameters(preparing, Config.Idea.PARAMETERS);
         Config.Idea.setStartup(startupCheckBox.isSelected() ? 1 : 0);
         Config.Idea.setFormatSql(checkBox_sql.isSelected() ? 1 : 0);

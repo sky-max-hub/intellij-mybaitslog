@@ -85,6 +85,7 @@
     <depends>com.intellij.gradle</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="MyBatisLog Notification" displayType="BALLOON"/>
         <!-- Add your extensions here -->
         <java.programPatcher implementation="com.plugins.mybaitslog.PerRun"/>
         <!--定义控制台右键动作-->

@@ -66,12 +66,41 @@ public class PrintlnUtil {
         }
     }
 
+    /**
+     * 检查SQL是否匹配排除规则
+     */
+    private static boolean isExcluded(SqlVO sqlVO) {
+        final String excludeSql = Config.Idea.getExcludeSql();
+        if (StringUtils.isBlank(excludeSql)) {
+            return false;
+        }
+        final String id = sqlVO.getId();
+        final String completeSql = sqlVO.getCompleteSql();
+        final String[] patterns = excludeSql.split("[,\n]");
+        for (String pattern : patterns) {
+            final String trimmed = pattern.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            if (id != null && id.toLowerCase().contains(trimmed.toLowerCase())) {
+                return true;
+            }
+            if (completeSql != null && completeSql.toLowerCase().contains(trimmed.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void prints(Project project, String currentLine) {
         final String parameters = Config.Idea.getParameters();
         if (currentLine.contains(parameters)) {
             //序号前缀字符串
             final SqlVO sqlVO = restoreSql(currentLine);
             if (null != sqlVO) {
+                if (isExcluded(sqlVO)) {
+                    return;
+                }
                 String completesql = sqlVO.getCompleteSql().replaceAll("\t|\r|\n", "");
                 final String id = sqlVO.getId();
                 final String parameter = sqlVO.getParameter();
@@ -80,6 +109,7 @@ public class PrintlnUtil {
                 }
                 //序号
                 PrintlnUtil.println(project, Config.SQL_START_LINE + id + "\n", ConsoleViewContentType.USER_INPUT);
+//                PrintlnUtil.printlnSqlType(project, Config.SQL_EMPTY_LINE, completesql + "\n");
                 PrintlnUtil.printlnSqlType(project, Config.SQL_MIDDLE_LINE, completesql + "\n");
                 PrintlnUtil.printlnSqlType(project, Config.SQL_MIDDLE_LINE, parameter + "\n");
                 PrintlnUtil.println(project, Config.SQL_END_LINE + "\n", ConsoleViewContentType.USER_INPUT);

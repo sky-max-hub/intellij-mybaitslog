@@ -23,6 +23,7 @@ public class Config {
 
     public static final String SQL_START_LINE = "- -->  ";
     public static final String SQL_MIDDLE_LINE = "    >  ";
+    public static final String SQL_EMPTY_LINE = "";
     public static final String SQL_END_LINE = "- --<  ";
 
     public static class Idea {
@@ -55,6 +56,12 @@ public class Config {
         public static final String WHETHERFOLD = PROJECT_ID + "WHETHERFOLD";
 
         public static final String RMISERVER = PROJECT_ID + "RMISERVER";
+
+        /**
+         * 排除SQL关键字
+         */
+        public static final String DB_EXCLUDE_SQL_KEY = PROJECT_ID + "EXCLUDESQL";
+        public static final String EXCLUDE_SQL = "";
 
         public static final String PARAMETERS = "SQLStructure:";
 
@@ -230,6 +237,22 @@ public class Config {
         public static void setAddOpens(String opens) {
             final List<String> openlist = Arrays.asList(opens.split("\n"));
             PropertiesComponent.getInstance().setValue("addOpens:", String.join(";", openlist));
+        }
+
+        /**
+         * 获取排除SQL配置
+         */
+        public static String getExcludeSql() {
+            return PropertiesComponent.getInstance().getValue(DB_EXCLUDE_SQL_KEY, EXCLUDE_SQL);
+        }
+
+        /**
+         * 设置排除SQL配置
+         *
+         * @param value 排除的SQL关键字(逗号或换行分隔)
+         */
+        public static void setExcludeSql(String value) {
+            PropertiesComponent.getInstance().setValue(DB_EXCLUDE_SQL_KEY, null == value ? EXCLUDE_SQL : value);
         }
 
         public static Map<String, Boolean> getPerRunMap() {
